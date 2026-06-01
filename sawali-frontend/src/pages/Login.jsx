@@ -15,7 +15,7 @@ const Login = () => {
 
   try {
     const res = await fetch(
-      "http://localhost:5000/api/auth/signin",
+      "http://sawali-traders.onrender.com/api/auth/signin",
       {
         method: "POST",
         headers: {

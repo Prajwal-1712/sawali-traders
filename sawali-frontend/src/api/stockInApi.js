@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = "http://localhost:5000/api/stock-in";
+const API = "http://sawali-traders.onrender.com/api/stock-in";
 
 export const getStockInEntries = async (from = "", to = "") => {
   const res = await axios.get(API, {

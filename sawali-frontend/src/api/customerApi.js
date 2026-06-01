@@ -1,7 +1,7 @@
 // src/api/customerApi.js
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "http://sawali-traders.onrender.com"; // ⬅️ नक्की घाला
 
 export const createOrGetCustomer = async (payload) => {
   const res = await axios.post(`${API_BASE_URL}/api/customers`, payload);

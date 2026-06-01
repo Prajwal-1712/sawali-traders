@@ -19,7 +19,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:5000', // ← तुमचा backend port
+        target: 'http://sawali-traders.onrender.com', // ← तुमचा backend port
         changeOrigin: true,
       }
     }
