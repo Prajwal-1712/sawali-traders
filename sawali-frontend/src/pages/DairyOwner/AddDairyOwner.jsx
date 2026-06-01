@@ -52,7 +52,7 @@ const AddDairyOwner = () => {
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4">Add Dairy Owner</h2>
+      <h2 className="text-2xl font-bold text-white mb-4">Add Dairy Owner</h2>
 
       {error && <p className="text-sm text-red-500 mb-2">{error}</p>}
       {message && !error && (
@@ -61,14 +61,14 @@ const AddDairyOwner = () => {
 
       <form onSubmit={handleSubmit} className="space-y-3">
         <input
-          className="border w-full px-2 py-1"
+            className="border border-gray-600 bg-gray-800 text-white w-full px-3 py-2 rounded"
           placeholder="Owner Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
 
         <input
-          className="border w-full px-2 py-1"
+  className="border border-gray-600 bg-gray-800 text-white w-full px-3 py-2 rounded"
           placeholder="Mobile No"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
@@ -87,3 +87,4 @@ const AddDairyOwner = () => {
 };
 
 export default AddDairyOwner;
+  

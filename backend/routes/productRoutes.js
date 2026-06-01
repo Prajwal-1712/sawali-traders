@@ -28,12 +28,28 @@ router.post("/", async (req, res) => {
       openingStock,
     } = req.body;
 
-    if (!name) {
-      return res.status(400).json({ error: "Product name is required" });
-    }
+      
+    // 1. name check
+if (!name) {
+  return res.status(400).json({ error: "Product name is required" });
+}
+
+// 2. trim
+const cleanName = name.trim();
+
+// 3. duplicate check
+const existing = await Product.findOne({
+  name: { $regex: new RegExp(`^${cleanName}$`, "i") }
+});
+
+if (existing) {
+  return res.status(400).json({
+    error: "Product already exists",
+  });
+}
 
     const product = await Product.create({
-  name,
+  name: cleanName,
   sku,
   unit,
   hsnCode,
@@ -41,7 +57,7 @@ router.post("/", async (req, res) => {
   purchasePrice,
   salePrice,
   openingStock: openingStock ?? 0,
-  currentStock: 0,
+  currentStock: openingStock ?? 0,
 });
 
 
@@ -62,22 +78,38 @@ router.put("/:id", async (req, res) => {
       gstPercent,
       purchasePrice,
       salePrice,
+      currentStock, 
     } = req.body;
 
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      {
-        name,
-        sku,
-        unit,
-        hsnCode,
-        gstPercent,
-        purchasePrice,
-        salePrice,
-      },
-      { new: true }
-    );
+    if (!name) {
+  return res.status(400).json({ error: "Product name required" });
+}
+const cleanName = name.trim();
+const existing = await Product.findOne({
+  name: cleanName,
+});
 
+// 👉 check manually
+if (existing && existing._id.toString() !== req.params.id) {
+  return res.status(400).json({
+    error: "Product with same name already exists",
+  });
+}
+
+   const product = await Product.findByIdAndUpdate(
+  req.params.id,
+  {
+    name: cleanName,
+    sku,
+    unit,
+    hsnCode,
+    gstPercent,
+    purchasePrice,
+    salePrice,
+    currentStock, 
+  },
+  { new: true }
+);
     res.json(product);
   } catch (err) {
     res.status(400).json({ error: err.message });

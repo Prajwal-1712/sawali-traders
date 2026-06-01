@@ -17,6 +17,7 @@ const ProductsList = () => {
     salePrice: "",
     purchasePrice: "",
     stock: "",
+     existingStock: 0,
   });
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState("");
@@ -45,64 +46,85 @@ const ProductsList = () => {
   };
 
   const startEdit = (p) => {
-    setEditingId(p._id);
-    setForm({
-      name: p.name,
-      salePrice: p.salePrice,
-      purchasePrice: p.purchasePrice,
-      stock: p.stock,
-    });
-  };
+  setEditingId(p._id);
+  setForm({
+    name: p.name,
+    salePrice: p.salePrice,
+    purchasePrice: p.purchasePrice,
+    stock: "",           
+    existingStock: p.currentStock,  
+  });
+};
 
-  const resetForm = () => {
-    setEditingId(null);
-    setForm({
-      name: "",
-      salePrice: "",
-      purchasePrice: "",
-      stock: "",
-    });
-  };
+const resetForm = () => {
+  setEditingId(null);
+  setForm({
+    name: "",
+    salePrice: "",
+    purchasePrice: "",
+    stock: "",
+    existingStock: 0, 
+  });
+};
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
+ const handleSubmit = async (e) => {
+  
+  e.preventDefault();
+  setError("");
 
-    if (!form.name.trim()) {
-      setError("Product name required");
+  // ✅ 1. Name validation
+  if (!form.name.trim()) {
+    setError("Product name required");
+    return;
+  }
+
+  // ✅ 2. Duplicate check ONLY for new product
+  if (!editingId) {
+    const exists = products.some(
+      (p) =>
+        p.name.trim().toLowerCase() === form.name.trim().toLowerCase()
+    );
+
+    if (exists) {
+      setError("Product already exists");
       return;
     }
+  }
 
-    try {
-      setSaving(true);
-      const payload = {
-        name: form.name,
-        salePrice: Number(form.salePrice) || 0,
-        purchasePrice: Number(form.purchasePrice) || 0,
-        stock: Number(form.stock) || 0,
-      };
+  try {
+    setSaving(true);
 
-      if (editingId) {
-        await updateProduct(editingId, payload);
-      } else {
-        await createProduct({
-          ...payload,
-          openingStock: payload.stock,
-        });
-      }
+    const payload = {
+  name: form.name.trim(),
+  salePrice: Number(form.salePrice) || 0,
+  purchasePrice: Number(form.purchasePrice) || 0,
+  currentStock: editingId
+    ? (Number(form.existingStock) || 0) + (Number(form.stock) || 0)  // ✅ Edit → ADD
+    : Number(form.stock) || 0,  // ✅ New Product → SET
+};
 
-      await load();
-      resetForm();
-    } catch (err) {
-      console.error("Error saving product:", err);
-      setError(
-        err.response?.data?.error || "Error saving product"
-      );
-    } finally {
-      setSaving(false);
+    // ✅ 4. Edit vs Add
+    if (editingId) {
+      await updateProduct(editingId, payload);
+    } else {
+      await createProduct({
+        ...payload,
+        openingStock: payload.currentStock,
+      });
     }
-  };
 
+    // ✅ 5. Refresh + reset
+    await load();
+    resetForm();
+
+  } catch (err) {
+    console.error("Error saving product:", err);
+    setError(err.response?.data?.error || "Error saving product");
+  } finally {
+    setSaving(false);
+  }
+};
+  
   const safeProducts = Array.isArray(products) ? products : [];
 
   return (
@@ -222,7 +244,7 @@ const ProductsList = () => {
                     <td className="p-2">{p.name}</td>
                     <td className="p-2 text-right">₹{p.salePrice}</td>
                     <td className="p-2 text-right">₹{p.purchasePrice}</td>
-                    <td className="p-2 text-right">{p.stock}</td>
+                    <td className="p-2 text-right">{p.currentStock ?? 0}</td>
                     <td className="p-2 text-right">
                       <button
                         onClick={() => startEdit(p)}

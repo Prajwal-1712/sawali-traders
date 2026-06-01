@@ -7,8 +7,12 @@ const router = express.Router();
 // POST /api/stock-in  → add stock entry and update product stock
 router.post("/", async (req, res) => {
   try {
-    const { distributorName, productId, rate, quantity, date } = req.body;
+    // const { distributorName, productId, rate, quantity, date } = req.body;
+    const { distributorId, productId, rate, quantity, date } = req.body;
 
+     if (!distributorId) {
+      return res.status(400).json({ error: "Distributor is required" });
+    }
     const product = await Product.findById(productId);
     if (!product) return res.status(404).json({ error: "Product not found" });
 
@@ -16,8 +20,9 @@ router.post("/", async (req, res) => {
     const r = Number(rate) || 0;
     const total = qty * r;
 
+    
     const entry = await StockIn.create({
-      distributorName,
+      distributorId,
       productId,
       productName: product.name,
       rate: r,

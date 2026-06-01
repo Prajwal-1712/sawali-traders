@@ -10,17 +10,38 @@ const Login = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    // TEMP: simple owner login (will connect to backend later)
-    if (form.username === "owner" && form.password === "1234") {
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/auth/signin",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: form.username,
+          password: form.password,
+        }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (res.ok) {
+      localStorage.setItem("token", data.token);
       localStorage.setItem("auth", "true");
-      navigate("/dashboard");
+
+      window.location.href = "/dashboard";
     } else {
-      setError("Invalid owner username or password");
+      setError(data.message);
     }
-  };
+  } catch (err) {
+    setError("Server Error");
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 px-4">
@@ -31,14 +52,14 @@ const Login = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-700 mb-1">Username</label>
+            <label className="block text-gray-700 mb-1">Email</label>
             <input
               type="text"
               name="username"
               value={form.username}
               onChange={handleChange}
               className="w-full border px-4 py-2 rounded-lg focus:ring-2 focus:ring-gray-900 outline-none"
-              placeholder="Enter owner username"
+              placeholder="Enter owner email"
               required
             />
           </div>

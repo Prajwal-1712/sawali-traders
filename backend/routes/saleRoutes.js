@@ -124,8 +124,12 @@ router.get("/customer/:customerId", async (req, res) => {
   try {
     const customerObjectId = new mongoose.Types.ObjectId(req.params.customerId);
 
-const sales = await Sale.find({ customerId: customerObjectId }) 
-  .sort({ createdAt: -1 });
+// const sales = await Sale.find({ customerId: customerObjectId }) 
+//   .sort({ createdAt: -1 });
+
+const sales = await Sale.find({ customerId: customerObjectId })
+  .populate("items.productId", "name unit")   // ← product name + unit येईल
+  .sort({ billNumber: 1 });  
 
     res.json(sales);
   } catch (err) {
@@ -155,6 +159,84 @@ router.get("/summary", async (req, res) => {
       0
     );
     res.json({ totalSales });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// saleRoutes.js मध्ये हे add कर
+router.get("/recent", async (req, res) => {
+  try {
+    const sales = await Sale.find()
+      .sort({ createdAt: -1 })
+      .limit(6)
+      .populate("customerId", "name");
+
+    const result = sales.map((s) => ({
+      ...s.toObject(),
+      customerName: s.customerId?.name || "—",
+    }));
+
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+
+// ── हे 2 routes saleRoutes.js मध्ये add करा (export default च्या आधी) ──
+
+// GET /api/sales/last7days → last 7 days daily sales
+router.get("/last7days", async (req, res) => {
+  try {
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const start = new Date();
+      start.setDate(start.getDate() - i);
+      start.setHours(0, 0, 0, 0);
+
+      const end = new Date(start);
+      end.setHours(23, 59, 59, 999);
+
+      const sales = await Sale.find({ createdAt: { $gte: start, $lte: end } });
+      const total = sales.reduce((sum, s) => sum + (s.grandTotal || 0), 0);
+      const paid  = sales.reduce((sum, s) => sum + (s.paidAmount || 0), 0);
+
+      days.push({
+        date:       start.toLocaleDateString("en-IN", { day: "2-digit", month: "short" }),
+        totalSales: total,
+        totalPaid:  paid,
+        billCount:  sales.length,
+      });
+    }
+    res.json(days);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// GET /api/sales/top-products → top 5 selling products
+router.get("/top-products", async (req, res) => {
+  try {
+    const sales = await Sale.find().populate("items.productId", "name");
+
+    const productMap = {};
+    for (const sale of sales) {
+      for (const item of sale.items) {
+        const name = item.productId?.name || "Unknown";
+        const qty  = Number(item.quantity) || 0;
+        const amt  = qty * (Number(item.rate) || 0);
+        if (!productMap[name]) productMap[name] = { name, totalQty: 0, totalAmount: 0 };
+        productMap[name].totalQty    += qty;
+        productMap[name].totalAmount += amt;
+      }
+    }
+
+    const top5 = Object.values(productMap)
+      .sort((a, b) => b.totalAmount - a.totalAmount)
+      .slice(0, 5);
+
+    res.json(top5);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

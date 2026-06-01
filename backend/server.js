@@ -15,7 +15,7 @@ import productRoutes from "./routes/productRoutes.js";
 import stockInRoutes from "./routes/stockInRoutes.js";
 import dairyOwnerRoutes from "./routes/dairyOwnerRoutes.js";
 import smsRoutes from "./routes/smsRoutes.js";
-
+import authRoutes from "./routes/auth.js";
 
 
 const app = express();
@@ -33,6 +33,7 @@ app.get("/", (req, res) => {
 });
 
 // API Routes
+app.use("/api/auth", authRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/distributors", distributorRoutes);
 app.use("/api/sales", saleRoutes);

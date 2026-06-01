@@ -33,7 +33,9 @@ function App() {
         {/* Sidebar only if logged in */}
         {isLoggedIn && <Sidebar />}
 
-        <main className="flex-1 bg-gray-100 p-4 md:p-6">
+        {/* <main className="flex-1 bg-gray-100 p-4 md:p-6"> */}
+          <main className="flex-1" style={{ background: "#0f100e" }}>
+
           <Routes>
             {/* Login route */}
             <Route

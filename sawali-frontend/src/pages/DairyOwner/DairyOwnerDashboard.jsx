@@ -174,6 +174,13 @@ setSales(Array.isArray(salesData) ? salesData : []);
   Export Excel
 </button>
 
+<button
+  onClick={() => navigate("/dairy-owners/new")}
+  className="px-4 py-2 bg-blue-600 text-white rounded"
+>
+  Add Dairy Owner
+</button>
+
 
 </div>
 
