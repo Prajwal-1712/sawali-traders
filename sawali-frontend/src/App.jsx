@@ -9,7 +9,7 @@ import ProtectedRoute from "./auth/ProtectedRoute";
 import NewSale from "./pages/Sales/NewSale";
 
 import CustomerList from "./pages/Customers/CustomerList";
-// import AddCustomer from "./pages/Customers/AddCustomer";
+import AddCustomer from "./pages/Customers/AddCustomer";
 import CustomerHistory from "./pages/Customers/CustomerHistory";
 
 import DistributorList from "./pages/Distributors/DistributorList";
