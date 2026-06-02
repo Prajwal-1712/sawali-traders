@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createCustomer } from "../../api/customerApi";
-
+// import { createCustomer } from "../../api/customerApi";
+import {createOrGetCustomer} from "../../api/customerApi";
 const AddCustomer = () => {
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
@@ -42,8 +42,8 @@ const AddCustomer = () => {
         openingBalance: 0,
       };
 
-      await createCustomer(payload);
-
+      // await createCustomer(payload);
+        await createOrGetCustomer(payload);
       alert("Customer added successfully!");
       navigate("/customers");
     } catch (err) {
