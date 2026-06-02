@@ -13,17 +13,7 @@ export const getAllCustomers = async () => {
   const res = await axios.get(`${API_BASE_URL}/api/customers`);
   return res.data;
 };
-
-
-// export const getCustomerSales = async (customerId) => {
-//   const res = await axios.get(`/api/sales/customer/${customerId}`);
-//   return res.data;
-// };
-// export const getCustomerSales = async (customerId) => {
-//   const res = await axios.get(`/api/sales/customer/${customerId}`);
-//   return Array.isArray(res.data) ? res.data : [];
-// };
-
+ 
 export const getCustomerSales = async (customerId) => {
   const res = await axios.get(
     `${API_BASE_URL}/api/sales/customer/${customerId}`
@@ -41,11 +31,6 @@ export const payCustomer = async (customerId, payload) => {
 };
 
 
-// export const getCustomerById = async (customerId) => {
-//   const res = await axios.get(`/api/customers/${customerId}`);
-//   return res.data;
-// };
-
 export const getCustomerById = async (customerId) => {
   const res = await axios.get(
     `${API_BASE_URL}/api/customers/${customerId}`
@@ -60,3 +45,6 @@ export const getPendingCustomers = async (search = "") => {
   );
   return res.data;
 };
+
+
+export const createCustomer = createOrGetCustomer;
