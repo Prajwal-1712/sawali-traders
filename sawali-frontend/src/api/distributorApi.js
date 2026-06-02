@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://sawali-traders.onrender.com/api";
+const API_BASE_URL = "https://sawali-traders.onrender.com/api";
 
 export const getAllDistributors = async () => {
   const res = await axios.get(`${API_BASE_URL}/distributors`);

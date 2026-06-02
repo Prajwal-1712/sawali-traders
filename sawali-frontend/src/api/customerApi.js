@@ -1,7 +1,7 @@
 // src/api/customerApi.js
 import axios from "axios";
 
-const API_BASE_URL = "http://sawali-traders.onrender.com"; // ⬅️ नक्की घाला
+const API_BASE_URL = "https://sawali-traders.onrender.com"; // ⬅️ नक्की घाला
 
 export const createOrGetCustomer = async (payload) => {
   const res = await axios.post(`${API_BASE_URL}/api/customers`, payload);
@@ -31,13 +31,6 @@ export const getCustomerSales = async (customerId) => {
   return Array.isArray(res.data) ? res.data : [];
 };
 
-// export const payCustomer = async (customerId, payload) => {
-//   const res = await axios.post(`/api/customers/${customerId}/pay`, payload);
-//   return res.data;
-// };
-// import axios from "axios";
-
-// const API_BASE_URL = "http://localhost:5000"; // ⬅️ नक्की घाल
 
 export const payCustomer = async (customerId, payload) => {
   const res = await axios.post(

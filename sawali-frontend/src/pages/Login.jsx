@@ -15,7 +15,7 @@ const Login = () => {
 
   try {
     const res = await fetch(
-      "http://sawali-traders.onrender.com/api/auth/signin",
+      "https://sawali-traders.onrender.com/api/auth/signin",
       {
         method: "POST",
         headers: {
