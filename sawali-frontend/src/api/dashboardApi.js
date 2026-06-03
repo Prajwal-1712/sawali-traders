@@ -1,6 +1,6 @@
 // src/api/dashboardApi.js
-import axios from "axios";
-import api from "./api"; 
+
+import api from "./axios"; 
 
 export const getTodaySummary = async () => {
   const res = await api.get("/api/sales/summary-today");
