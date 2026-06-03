@@ -16,7 +16,7 @@ import stockInRoutes from "./routes/stockInRoutes.js";
 import dairyOwnerRoutes from "./routes/dairyOwnerRoutes.js";
 import smsRoutes from "./routes/smsRoutes.js";
 import authRoutes from "./routes/auth.js";
-
+import distributorPaymentRoutes from "./routes/distributorPaymentRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -42,6 +42,8 @@ app.use("/api/stock-in", stockInRoutes);     // ⬅️ NEW
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/dairy-owners", dairyOwnerRoutes); // 👈 IMPORTANT
 app.use("/api/sms", smsRoutes);
+app.use("/api/distributor-payments", distributorPaymentRoutes);
+
 
 
 // Start Server

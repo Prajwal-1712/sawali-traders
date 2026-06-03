@@ -14,6 +14,7 @@ import CustomerHistory from "./pages/Customers/CustomerHistory";
 
 import DistributorList from "./pages/Distributors/DistributorList";
 import AddDistributor from "./pages/Distributors/AddDistributor";
+import DistributorDetails from "./pages/Distributors/DistributorDetails";
 
 import IncomingStock from "./pages/Stock/IncomingStock";
 import ProductList from "./pages/Products/ProductList";
@@ -188,6 +189,12 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+            <Route
+             path="/distributors/:id"
+             element={<DistributorDetails />}
+                />
+
           </Routes>
         </main>
       </div>

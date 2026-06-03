@@ -26,3 +26,14 @@ export const deleteStockInEntry = async (id) => {
   const response = await axiosInstance.delete(`/stock-in/${id}`);
   return response.data;
 };
+
+
+export const getDistributorStockHistory = async (
+  distributorId
+) => {
+  const res = await axios.get(
+    `${API}/distributor/${distributorId}`
+  );
+
+  return res.data;
+};

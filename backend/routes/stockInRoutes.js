@@ -1,7 +1,7 @@
 import express from "express";
 import StockIn from "../models/StockIn.js";
 import Product from "../models/Product.js";
-
+import Distributor from "../models/Distributor.js";
 const router = express.Router();
 
 // POST /api/stock-in  → add stock entry and update product stock
@@ -31,6 +31,17 @@ router.post("/", async (req, res) => {
       date: date ? new Date(date) : new Date(),
     });
 
+    const distributor = await Distributor.findById(distributorId);
+
+if (distributor) {
+  distributor.totalPurchase =
+    (distributor.totalPurchase || 0) + total;
+
+  distributor.currentBalance =
+    (distributor.currentBalance || 0) + total;
+
+  await distributor.save();
+}
     // ✅ FIXED LINE
     product.currentStock = (product.currentStock || 0) + qty;
 
@@ -69,6 +80,23 @@ router.get("/", async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 });
+
+
+// GET /api/stock-in/distributor/:id
+router.get("/distributor/:id", async (req, res) => {
+  try {
+    const stockHistory = await StockIn.find({
+      distributorId: req.params.id,
+    }).sort({ date: -1 });
+
+    res.json(stockHistory);
+  } catch (err) {
+    res.status(500).json({
+      error: err.message,
+    });
+  }
+});
+
 // GET /api/stock-in/summary?from=YYYY-MM-DD&to=YYYY-MM-DD
 router.get("/summary", async (req, res) => {
   try {
