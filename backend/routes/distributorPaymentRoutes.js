@@ -28,6 +28,11 @@ router.post("/", async (req, res) => {
         message: "Valid amount is required",
       });
     }
+    if (isNaN(amount)) {
+  return res.status(400).json({
+    message: "Amount must be a number",
+  });
+}
 
     const distributor =
       await Distributor.findById(distributorId);
@@ -66,13 +71,13 @@ router.post("/", async (req, res) => {
       distributor,
     });
   } catch (error) {
-    console.error(error);
+  console.error("Distributor Payment Error:", error);
 
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
+  res.status(500).json({
+    success: false,
+    message: "Internal Server Error",
+  });
+}
 });
 
 /* =====================================
@@ -89,11 +94,15 @@ router.get("/:distributorId", async (req, res) => {
         .sort({ date: -1 });
 
     res.status(200).json(payments);
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
+  } 
+  catch (error) {
+  console.error("Get Payment Error:", error);
+
+  res.status(500).json({
+    success: false,
+    message: "Internal Server Error",
+  });
+}
 });
 
 /* =====================================
@@ -133,11 +142,14 @@ router.delete("/:paymentId", async (req, res) => {
       success: true,
       message: "Payment deleted successfully",
     });
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
+  }catch (error) {
+  console.error("Delete Payment Error:", error);
+
+  res.status(500).json({
+    success: false,
+    message: "Internal Server Error",
+  });
+}
 });
 
 /* =====================================
@@ -152,6 +164,11 @@ router.put("/:paymentId", async (req, res) => {
       note,
     } = req.body;
 
+    if (!amount || Number(amount) <= 0) {
+  return res.status(400).json({
+    message: "Valid amount is required",
+  });
+}
     const payment =
       await DistributorPayment.findById(
         req.params.paymentId
@@ -192,10 +209,13 @@ router.put("/:paymentId", async (req, res) => {
       payment,
     });
   } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
+  console.error("Update Payment Error:", error);
+
+  res.status(500).json({
+    success: false,
+    message: "Internal Server Error",
+  });
+}
 });
 
 export default router;

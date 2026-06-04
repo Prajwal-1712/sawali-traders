@@ -10,6 +10,9 @@ import {
   getDistributorStockHistory,
 } from "../../api/stockInApi";
 
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+
 const DistributorDetails = () => {
   const { id } = useParams();
 
@@ -19,6 +22,13 @@ const DistributorDetails = () => {
   const [loading, setLoading] = useState(true);
 
   const [showPaymentForm, setShowPaymentForm] = useState(false);
+const [fromDate, setFromDate] = useState("");
+const [toDate, setToDate] = useState("");
+const [paymentFromDate, setPaymentFromDate] =
+  useState("");
+
+const [paymentToDate, setPaymentToDate] =
+  useState("");
 
 const [paymentData, setPaymentData] = useState({
   amount: "",
@@ -107,7 +117,197 @@ const pendingAmount =
   Number(distributor?.totalPurchase || 0) -
   Number(distributor?.totalPaid || 0);
 
+const advanceAmount =
+  pendingAmount < 0
+    ? Math.abs(pendingAmount)
+    : 0;
 
+const actualPending =
+  pendingAmount > 0
+    ? pendingAmount
+    : 0;
+
+
+    const filteredStockHistory =
+  stockHistory.filter((item) => {
+
+    const stockDate =
+      new Date(item.date);
+
+    if (
+      fromDate &&
+      stockDate < new Date(fromDate)
+    ) {
+      return false;
+    }
+
+    if (
+      toDate &&
+      stockDate >
+      new Date(`${toDate}T23:59:59`)
+    ) {
+      return false;
+    }
+
+    return true;
+  });
+
+  const filteredPayments =
+  payments.filter((p) => {
+
+    const paymentDate =
+      new Date(p.date);
+
+    if (
+      paymentFromDate &&
+      paymentDate <
+      new Date(paymentFromDate)
+    ) {
+      return false;
+    }
+
+    if (
+      paymentToDate &&
+      paymentDate >
+      new Date(
+        `${paymentToDate}T23:59:59`
+      )
+    ) {
+      return false;
+    }
+
+    return true;
+  });
+
+  const downloadExcel = () => {
+
+  const stockData =
+    filteredStockHistory.map((s) => ({
+      Date: new Date(s.date)
+        .toLocaleDateString(),
+
+      Product: s.productName,
+
+      Quantity: s.quantity,
+
+      Rate: s.rate,
+
+      Total: s.total,
+    }));
+
+  const paymentDataExcel =
+    filteredPayments.map((p) => ({
+      Date: new Date(p.date)
+        .toLocaleDateString(),
+
+      Method: p.paymentMethod,
+
+      Amount: p.amount,
+
+      Note: p.note || "",
+    }));
+
+    const summaryData = [
+  {
+    Distributor: distributor.name,
+    TotalPurchase:
+      distributor.totalPurchase || 0,
+    TotalPaid:
+      distributor.totalPaid || 0,
+    AdvancePayment:
+      advanceAmount,
+    PendingAmount:
+      actualPending,
+  },
+];
+
+  const wb =
+    XLSX.utils.book_new();
+
+    const summarySheet =
+  XLSX.utils.json_to_sheet(
+    summaryData
+  );
+
+  const stockSheet =
+    XLSX.utils.json_to_sheet(
+      stockData
+    );
+
+  const paymentSheet =
+    XLSX.utils.json_to_sheet(
+      paymentDataExcel
+    );
+
+    XLSX.utils.book_append_sheet(
+  wb,
+  summarySheet,
+  "Summary"
+);
+
+  XLSX.utils.book_append_sheet(
+    wb,
+    stockSheet,
+    "Stock History"
+  );
+
+  XLSX.utils.book_append_sheet(
+    wb,
+    paymentSheet,
+    "Payment History"
+  );
+
+  const excelBuffer =
+    XLSX.write(wb, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+  const file =
+    new Blob([excelBuffer], {
+      type:
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+  saveAs(
+    file,
+    `${distributor.name}.xlsx`
+  );
+};
+
+const downloadPaymentExcel = () => {
+
+  const paymentDataExcel =
+    filteredPayments.map((p) => ({
+      Date: new Date(p.date)
+        .toLocaleDateString(),
+
+      Method: p.paymentMethod,
+
+      Amount: p.amount,
+
+      Note: p.note || "",
+    }));
+
+  const wb =
+    XLSX.utils.book_new();
+
+  const ws =
+    XLSX.utils.json_to_sheet(
+      paymentDataExcel
+    );
+
+  XLSX.utils.book_append_sheet(
+    wb,
+    ws,
+    "Payment History"
+  );
+
+  XLSX.writeFile(
+    wb,
+    `${distributor.name}-payments.xlsx`
+  );
+};
   return (
     <div className="min-h-screen bg-[#0f1117] text-white p-6">
       <div className="max-w-6xl mx-auto">
@@ -151,19 +351,15 @@ const pendingAmount =
               ).toLocaleString("en-IN")}
             </h2>
           </div>
+<div className="bg-gray-800 rounded-xl p-5">
+  <p className="text-gray-400 text-sm">
+    Advance Payment
+  </p>
 
-          <div className="bg-gray-800 rounded-xl p-5">
-            <p className="text-gray-400 text-sm">
-              Returned Amount
-            </p>
-
-            <h2 className="text-2xl font-bold text-yellow-400">
-              ₹
-              {Number(
-                distributor.returnedAmount || 0
-              ).toLocaleString("en-IN")}
-            </h2>
-          </div>
+  <h2 className="text-2xl font-bold text-yellow-400">
+    ₹{advanceAmount.toLocaleString("en-IN")}
+  </h2>
+</div>
 
           <div className="bg-gray-800 rounded-xl p-5">
   <p className="text-gray-400 text-sm">
@@ -171,7 +367,7 @@ const pendingAmount =
   </p>
 
   <h2 className="text-2xl font-bold text-red-400">
-    ₹{pendingAmount.toLocaleString("en-IN")}
+    ₹{actualPending.toLocaleString("en-IN")}
   </h2>
 </div>
 
@@ -283,8 +479,34 @@ const pendingAmount =
   <h2 className="text-lg font-semibold mb-4">
     Stock History
   </h2>
+  <div className="flex gap-3 mb-4">
 
-  {stockHistory.length === 0 ? (
+  <input
+    type="date"
+    value={fromDate}
+    onChange={(e) =>
+      setFromDate(e.target.value)
+    }
+    className="bg-gray-700 p-2 rounded"
+  />
+
+  <input
+    type="date"
+    value={toDate}
+    onChange={(e) =>
+      setToDate(e.target.value)
+    }
+    className="bg-gray-700 p-2 rounded"
+  />
+
+</div>
+<button
+  onClick={downloadExcel}
+  className="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded mb-4"
+>
+  Export Excel
+</button>
+  {filteredStockHistory.length === 0 ? (
     <p className="text-gray-400">
       No stock entries found
     </p>
@@ -301,7 +523,7 @@ const pendingAmount =
       </thead>
 
       <tbody>
-        {stockHistory.map((s) => (
+          {filteredStockHistory.map((s) => (
           <tr
             key={s._id}
             className="border-b border-gray-700"
@@ -329,13 +551,46 @@ const pendingAmount =
 
 </div>
 
+
+
         {/* Payment History */}
         <div className="bg-gray-800 rounded-xl p-5">
           <h2 className="text-lg font-semibold mb-4">
             Payment History
           </h2>
+          <button
+  onClick={downloadPaymentExcel}
+  className="bg-green-600 hover:bg-green-500 px-4 py-2 rounded mb-4"
+>
+  Export Payment Excel
+</button>
+          <div className="flex gap-3 mb-4">
 
-          {payments.length === 0 ? (
+  <input
+    type="date"
+    value={paymentFromDate}
+    onChange={(e) =>
+      setPaymentFromDate(
+        e.target.value
+      )
+    }
+    className="bg-gray-700 p-2 rounded"
+  />
+
+  <input
+    type="date"
+    value={paymentToDate}
+    onChange={(e) =>
+      setPaymentToDate(
+        e.target.value
+      )
+    }
+    className="bg-gray-700 p-2 rounded"
+  />
+
+</div>
+
+          {filteredPayments.length === 0 ? (
             <p className="text-gray-400">
               No payments found
             </p>
@@ -359,7 +614,7 @@ const pendingAmount =
               </thead>
 
               <tbody>
-                {payments.map((p) => (
+                {filteredPayments.map((p) => (
                   <tr
                     key={p._id}
                     className="border-b border-gray-700"

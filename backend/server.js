@@ -17,13 +17,39 @@ import dairyOwnerRoutes from "./routes/dairyOwnerRoutes.js";
 import smsRoutes from "./routes/smsRoutes.js";
 import authRoutes from "./routes/auth.js";
 import distributorPaymentRoutes from "./routes/distributorPaymentRoutes.js";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import mongoSanitize from "express-mongo-sanitize";
+import hpp from "hpp";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // max 100 requests
+  message: {
+    success: false,
+    message: "Too many requests, please try again later."
+  }
+});
+
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "https://sawali.netlify.app",
+      "http://localhost:5173",
+    ],
+    credentials: true,
+  })
+);
 app.use(express.json());
+app.use(helmet());
+app.use(limiter);
+app.use(mongoSanitize());
+app.use(hpp());
 
 // Connect to MongoDB
 connectDB();
@@ -45,6 +71,15 @@ app.use("/api/sms", smsRoutes);
 app.use("/api/distributor-payments", distributorPaymentRoutes);
 
 
+  // Global Error Handler
+app.use((err, req, res, next) => {
+  console.error(err);
+
+  res.status(500).json({
+    success: false,
+    message: "Internal Server Error",
+  });
+});
 
 // Start Server
 app.listen(PORT, () => {

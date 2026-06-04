@@ -7,9 +7,17 @@ export const createCustomer = async (req, res) => {
   try {
     const { name, phone, address, customerType, dairyOwnerName, openingBalance } = req.body;
 
-    if (!name) {
-      return res.status(400).json({ message: "Name is required" });
-    }
+if (!name || name.trim().length < 3) {
+  return res.status(400).json({
+    message: "Name must be at least 3 characters",
+  });
+}
+
+if (phone && !/^[0-9]{10}$/.test(phone)) {
+  return res.status(400).json({
+    message: "Invalid phone number",
+  });
+}
 
     const customer = await Customer.create({
       name,
@@ -24,7 +32,10 @@ export const createCustomer = async (req, res) => {
     res.status(201).json(customer);
   } catch (error) {
     console.error("Error creating customer:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({
+  success: false,
+  message: "Internal Server Error",
+});
   }
 };
 
@@ -36,7 +47,10 @@ export const getCustomers = async (req, res) => {
     res.json(customers);
   } catch (error) {
     console.error("Error fetching customers:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({
+  success: false,
+  message: "Internal Server Error",
+});
   }
 };
 
@@ -52,9 +66,13 @@ export const getCustomerById = async (req, res) => {
 
     res.json(customer);
   } catch (error) {
-    console.error("Error fetching customer:", error);
-    res.status(500).json({ message: "Server error" });
-  }
+  console.error("Error fetching customer:", error);
+
+  res.status(500).json({
+    success: false,
+    message: "Internal Server Error",
+  });
+}
 };
 
 // @desc   Update customer
@@ -80,10 +98,15 @@ export const updateCustomer = async (req, res) => {
     const updated = await customer.save();
 
     res.json(updated);
-  } catch (error) {
-    console.error("Error updating customer:", error);
-    res.status(500).json({ message: "Server error" });
-  }
+  } 
+  catch (error) {
+  console.error("Error updating customer:", error);
+
+  res.status(500).json({
+    success: false,
+    message: "Internal Server Error",
+  });
+}
 };
 
 // @desc   Delete customer
@@ -100,6 +123,9 @@ export const deleteCustomer = async (req, res) => {
     res.json({ message: "Customer removed" });
   } catch (error) {
     console.error("Error deleting customer:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({
+  success: false,
+  message: "Internal Server Error",
+});
   }
 };

@@ -8,9 +8,17 @@ router.post("/", async (req, res) => {
   try {
     const { name, phone, address, gstNumber, openingBalance } = req.body;
 
-    if (!name) {
-      return res.status(400).json({ message: "Distributor name is required" });
-    }
+    if (!name || name.trim().length < 3) {
+  return res.status(400).json({
+    message: "Distributor name must be at least 3 characters",
+  });
+}
+
+if (phone && !/^[0-9]{10}$/.test(phone)) {
+  return res.status(400).json({
+    message: "Invalid phone number",
+  });
+}
 
     const distributor = await Distributor.create({
       name,
@@ -24,7 +32,10 @@ router.post("/", async (req, res) => {
     res.status(201).json(distributor);
   } catch (error) {
     console.error("Error creating distributor:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({
+  success: false,
+  message: "Internal Server Error",
+});
   }
 });
 
@@ -35,7 +46,10 @@ router.get("/", async (req, res) => {
     res.json(distributors);
   } catch (error) {
     console.error("Error fetching distributors:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({
+  success: false,
+  message: "Internal Server Error",
+});
   }
 });
 
@@ -49,7 +63,10 @@ router.get("/:id", async (req, res) => {
     res.json(distributor);
   } catch (error) {
     console.error("Error fetching distributor:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({
+  success: false,
+  message: "Internal Server Error",
+});
   }
 });
 
