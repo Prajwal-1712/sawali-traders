@@ -351,6 +351,29 @@ const CustomerList = () => {
                           >
                             New Sale
                           </button>
+{isPending && c.phone && (
+  <button
+    onClick={() => {
+      const msg = `🙏 Namaskar ${c.name} Saheb,
+
+Asha karto ki tumhi sukharup asal.
+
+Tumchyakade ₹${balance.toFixed(2)} RS itki baki rakkam aahe.
+
+Krupaya payment lavkar karave hi vinanti.
+
+- Sawali Traders Savlaj`;
+
+      window.open(
+        `https://wa.me/91${c.phone}?text=${encodeURIComponent(msg)}`,
+        "_blank"
+      );
+    }}
+    className="px-3 py-1.5 text-xs font-medium bg-green-900/50 border border-green-800 text-green-300 rounded-lg"
+  >
+    Reminder
+  </button>
+)}
                         </div>
                       </div>
                     );

@@ -18,7 +18,6 @@ import smsRoutes from "./routes/smsRoutes.js";
 import authRoutes from "./routes/auth.js";
 import distributorPaymentRoutes from "./routes/distributorPaymentRoutes.js";
 import helmet from "helmet";
-import rateLimit from "express-rate-limit";
 import mongoSanitize from "express-mongo-sanitize";
 import hpp from "hpp";
 
@@ -26,14 +25,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // max 100 requests
-  message: {
-    success: false,
-    message: "Too many requests, please try again later."
-  }
-});
+
 
 // Middleware
 app.use(
@@ -47,7 +39,7 @@ app.use(
 );
 app.use(express.json());
 app.use(helmet());
-app.use(limiter);
+
 app.use(mongoSanitize());
 app.use(hpp());
 
