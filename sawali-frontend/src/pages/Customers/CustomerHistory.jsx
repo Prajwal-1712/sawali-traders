@@ -642,11 +642,11 @@ const CustomerHistory = () => {
           {totalBalance > 0 && customer.phone && (
   <button
     onClick={() => {
-      const msg = `🙏 Namaskar ${c.name} Saheb,
+      const msg = `🙏 Namaskar ${customer.name} Saheb,
 
 Asha karto ki tumhi sukharup asal.
 
-Tumchyakade ₹${balance.toFixed(2)} RS itki baki rakkam aahe.
+Tumchyakade ₹${totalBalance.toFixed(2)} RS itki baki rakkam aahe.
 
 Krupaya payment lavkar karave hi vinanti.
 
