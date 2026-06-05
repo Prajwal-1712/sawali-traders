@@ -22,6 +22,19 @@ export const payBulkForDairyOwner = async (ownerId, payload) => {
   return res.data;
 };
 
+// export const getDairyOwnerSales = async (ownerId, from, to) => {
+//   const params = new URLSearchParams();
+
+//   if (from) params.append("from", from);
+//   if (to) params.append("to", to);
+
+//   const res = await axios.get(
+//     `/api/dairy-owners/${ownerId}/sales?${params}`
+//   );
+
+//   return res.data;
+// };
+
 export const getDairyOwnerSales = async (ownerId, from, to) => {
   const params = new URLSearchParams();
 
@@ -29,12 +42,11 @@ export const getDairyOwnerSales = async (ownerId, from, to) => {
   if (to) params.append("to", to);
 
   const res = await axios.get(
-    `/api/dairy-owners/${ownerId}/sales?${params}`
+    `${API_BASE_URL}/api/dairy-owners/${ownerId}/sales?${params}`
   );
 
   return res.data;
 };
-
 
 export const createDairyOwner = async (payload) => {
   const res = await axios.post(`${API_BASE_URL}/api/dairy-owners`, payload);
