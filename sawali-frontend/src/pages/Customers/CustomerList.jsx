@@ -354,7 +354,7 @@ const CustomerList = () => {
 {isPending && c.phone && (
   <button
     onClick={() => {
-      const msg = `🙏 Namaskar ${c.name} Saheb,
+      const msg = `🙏 Namaskar ${customer.name} Saheb,
 
 Asha karto ki tumhi sukharup asal.
 
